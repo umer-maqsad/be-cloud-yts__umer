@@ -22,7 +22,12 @@ export const TicketModelSchema = {
 
 export class MovieDbModel extends Item {
   id: string;
-  userName: string;
+  title: string;
+  poster: string;
+  rating: number;
+  runtime: number;
+  releasedYear: number;
+  genres: string[];
 
   static getModel(tableName: string): ModelType<MovieDbModel> {
     const schema = new Schema(TicketModelSchema, { timestamps: true });
