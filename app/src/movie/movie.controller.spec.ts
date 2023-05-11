@@ -47,9 +47,7 @@ describe('MovieController', () => {
       .spyOn(service, 'listMovies')
       .mockResolvedValue(movies);
 
-    const response = await controller.listMovies();
-
-    await expect(response).toEqual(movies);
+    expect(controller.listMovies()).resolves.toEqual(movies);
     expect(listMoviesSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -72,9 +70,7 @@ describe('MovieController', () => {
       .spyOn(service, 'createMovie')
       .mockResolvedValue(createdMovie);
 
-    const response = await controller.createMovie(movieRequest);
-
-    await expect(response).toEqual(createdMovie);
+    expect(controller.createMovie(movieRequest)).resolves.toEqual(createdMovie);
     expect(createMovieSpy).toHaveBeenCalledTimes(1);
   });
 });
