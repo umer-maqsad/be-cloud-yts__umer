@@ -29,7 +29,7 @@ describe('MovieController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should yield list of movies', async () => {
+  it('should yield list of movies', () => {
     const movies = [
       {
         id: '8a23f1ce-ed0f-4ce1-a019-a574b4434048',
@@ -51,7 +51,7 @@ describe('MovieController', () => {
     expect(listMoviesSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should create a new movie', async () => {
+  it('should create a new movie', () => {
     const movieRequest = {
       title: 'The Avengers',
       poster:
