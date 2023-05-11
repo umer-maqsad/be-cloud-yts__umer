@@ -1,42 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { MovieDbModel } from 'src/database/models/movie.model';
 import { MovieController } from './movie.controller';
 import { MovieService } from './movie.service';
 
 describe('MovieController', () => {
+  let service: MovieService;
   let controller: MovieController;
 
-  const mockMovies = [
-    {
-      id: '8a23f1ce-ed0f-4ce1-a019-a574b4434043',
-      title: 'The Avengers',
-      poster: 'https://images.yts/movies/avenger.png',
-      genres: ['Horror'],
-      runtime: 97,
-      rating: 7.9,
-      createdAt: 1683654901836,
-      updatedAt: 1683654901836,
-    },
-  ];
-
   const mockMovieService = {
-    listMovies: jest.fn().mockImplementation(() => mockMovies),
-    createMovie: jest.fn().mockImplementation((movie) => {
-      return {
-        id: '8a23f1ce-ed0f-4ce1-a019-a574b4434041',
-        ...movie,
-      };
-    }),
+    listMovies: jest.fn(),
+    createMovie: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MovieController],
-      providers: [
-        MovieService,
-        { provide: MovieService, useValue: mockMovieService },
-      ],
-    }).compile();
+      providers: [MovieService],
+    })
+      .overrideProvider(MovieService)
+      .useValue(mockMovieService)
+      .compile();
 
+    service = module.get<MovieService>(MovieService);
     controller = module.get<MovieController>(MovieController);
   });
 
@@ -44,25 +29,52 @@ describe('MovieController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should yield list of movies', () => {
-    const movies = mockMovieService.listMovies();
+  it('should yield list of movies', async () => {
+    const movies = [
+      {
+        id: '8a23f1ce-ed0f-4ce1-a019-a574b4434048',
+        title: 'The Avengers',
+        poster:
+          'https://images.yts/movies/posters/8a23f1ce-ed0f-4ce1-a019-a574b4434048/avengers-medium(1024*2048).jpeg',
+        genres: ['Crime', 'Action', 'Sci-Fi'],
+        rating: 7.8,
+        runtime: 118,
+        releasedYear: 2012,
+      },
+    ] as MovieDbModel[];
 
-    expect(controller.listMovies()).toBe(movies);
+    const listMoviesSpy = jest
+      .spyOn(service, 'listMovies')
+      .mockResolvedValue(movies);
+
+    const response = await controller.listMovies();
+
+    await expect(response).toEqual(movies);
+    expect(listMoviesSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should create a new movie', () => {
-    const movie = {
+  it('should create a new movie', async () => {
+    const movieRequest = {
       title: 'The Avengers',
-      poster: 'https://images.yts/movies/avenger.png',
-      genres: ['Horror'],
-      runtime: 97,
-      rating: 7.9,
-      createdAt: 1683654901836,
-      updatedAt: 1683654901836,
+      poster:
+        'https://images.yts/movies/posters/8a23f1ce-ed0f-4ce1-a019-a574b4434048/avengers-medium(1024*2048).jpeg',
+      genres: ['Crime', 'Action', 'Sci-Fi'],
+      rating: 7.8,
+      runtime: 118,
+      releasedYear: 2012,
     };
 
-    const createdMovie = mockMovieService.createMovie(movie);
+    const createdMovie = {
+      id: '8a23f1ce-ed0f-4ce1-a019-a574b4434047',
+      ...movieRequest,
+    } as MovieDbModel;
+    const createMovieSpy = jest
+      .spyOn(service, 'createMovie')
+      .mockResolvedValue(createdMovie);
 
-    expect(controller.createMovie(movie)).toEqual(createdMovie);
+    const response = await controller.createMovie(movieRequest);
+
+    await expect(response).toEqual(createdMovie);
+    expect(createMovieSpy).toHaveBeenCalledTimes(1);
   });
 });
